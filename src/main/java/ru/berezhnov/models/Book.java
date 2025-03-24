@@ -1,22 +1,20 @@
 package ru.berezhnov.models;
 
-import jakarta.validation.constraints.*;
-
-import java.util.Optional;
+//import jakarta.validation.constraints.*;
 
 public class Book {
 
     private int id;
 
-    @NotEmpty(message = "Название не должно быть пустым")
-    @Size(min = 2, max = 100, message = "Название должно быть от 2 до 100 символов длиной")
+    //@NotEmpty(message = "Название не должно быть пустым")
+    //@Size(min = 2, max = 100, message = "Название должно быть от 2 до 100 символов длиной")
     private String title;
 
-    @NotEmpty(message = "Автор не должен быть пустым")
-    @Size(min = 2, max = 100, message = "Имя автора должно быть от 2 до 100 символов длиной")
+    //@NotEmpty(message = "Автор не должен быть пустым")
+    //@Size(min = 2, max = 100, message = "Имя автора должно быть от 2 до 100 символов длиной")
     private String author;
 
-    @Min(value = 1500, message = "Год должен быть больше чем 1500")
+    //@Min(value = 1500, message = "Год должен быть больше чем 1500")
     private int year;
 
     private Integer borrowerId;

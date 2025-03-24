@@ -1,60 +1,95 @@
 package ru.berezhnov.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 import ru.berezhnov.models.Book;
-import ru.berezhnov.models.Person;
+import ru.berezhnov.util.DBUtil;
 
-import java.util.Comparator;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@Component
 public class BookDAO {
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public BookDAO(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public List<Book> index() {
-        List<Book> result = jdbcTemplate.query("SELECT * FROM book", new BeanPropertyRowMapper<>(Book.class));
-        result.sort(Comparator.comparingInt(Book::getId));
-        return result;
+        List<Book> books = new ArrayList<>();
+        String sql = "SELECT * FROM book ORDER BY id";
+
+        try (Connection connection = DBUtil.getConnection();
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                books.add(mapBook(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
     }
 
     public Book show(int id) {
-        return jdbcTemplate.query("SELECT * FROM book WHERE id=?", new Object[]{id}, new BeanPropertyRowMapper<>(Book.class))
-                .stream().findAny().orElse(null);
-    }
+        String sql = "SELECT * FROM book WHERE id = ?";
+        try (Connection connection = DBUtil.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-    public void update(int id, Book updatedBook) {
-        jdbcTemplate.update("UPDATE book SET title=?, author=?, year=?, person_id=? WHERE id=?", updatedBook.getTitle(),
-                updatedBook.getAuthor(), updatedBook.getYear(), updatedBook.getBorrowerId(), id);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return mapBook(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void save(Book book) {
-        jdbcTemplate.update("INSERT INTO book(title, author, year, person_id) VALUES (?, ?, ?, ?)",
-                book.getTitle(), book.getAuthor(), book.getYear(), book.getBorrowerId());
+        String sql = "INSERT INTO book (title, author, year, person_id) VALUES (?, ?, ?, NULL)";
+        try (Connection connection = DBUtil.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setString(1, book.getTitle());
+            stmt.setString(2, book.getAuthor());
+            stmt.setInt(3, book.getYear());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(int id, Book book) {
+        String sql = "UPDATE book SET title = ?, author = ?, year = ? WHERE id = ?";
+        try (Connection connection = DBUtil.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setString(1, book.getTitle());
+            stmt.setString(2, book.getAuthor());
+            stmt.setInt(3, book.getYear());
+            stmt.setInt(4, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void delete(int id) {
-        jdbcTemplate.update("DELETE FROM book WHERE id=?", id);
+        String sql = "DELETE FROM book WHERE id = ?";
+        try (Connection connection = DBUtil.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public Optional<Person> getPersonByBookId(int bookId) {
-        return jdbcTemplate.query("SELECT person.* FROM person INNER JOIN book ON person.id=book.person_id WHERE book.id=?",
-                        new Object[]{bookId}, new BeanPropertyRowMapper<>(Person.class))
-                .stream().findAny();
-    }
-
-    public void giveBookToPerson(int bookId, Person person) {
-        jdbcTemplate.update("UPDATE book SET person_id=? WHERE id=?", person.getId(), bookId);
-    }
-    public void takeBookFromPerson(int bookId) {
-        jdbcTemplate.update("UPDATE book SET person_id=null WHERE id=?", bookId);
+    private Book mapBook(ResultSet rs) throws SQLException {
+        return new Book(
+                rs.getInt("id"),
+                rs.getString("title"),
+                rs.getString("author"),
+                rs.getInt("year"),
+                (Integer) rs.getObject("person_id") // может быть NULL
+        );
     }
 }

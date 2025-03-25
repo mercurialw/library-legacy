@@ -1,42 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0">
 
-    <!-- Настройка сервлета для работы с книгами -->
-    <servlet>
-        <servlet-name>BookServlet</servlet-name>
-        <servlet-class>ru.berezhnov.servlets.BookServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>BookServlet</servlet-name>
-        <url-pattern>/books/*</url-pattern>
-    </servlet-mapping>
-
-    <!-- Настройка сервлета для работы с людьми -->
-    <servlet>
-        <servlet-name>PersonServlet</servlet-name>
-        <servlet-class>ru.berezhnov.servlets.PersonServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>PersonServlet</servlet-name>
-        <url-pattern>/people/*</url-pattern>
-    </servlet-mapping>
-
     <!-- Настройки базы данных -->
     <context-param>
         <param-name>jdbcUrl</param-name>
-        <param-value>jdbc:postgresql://localhost:5432/your_database</param-value>
+        <param-value>jdbc:postgresql://localhost:5432/library</param-value>
     </context-param>
 
     <context-param>
         <param-name>jdbcUser</param-name>
-        <param-value>your_username</param-value>
+        <param-value>postgres</param-value>
     </context-param>
 
     <context-param>
         <param-name>jdbcPassword</param-name>
-        <param-value>your_password</param-value>
+        <param-value>postgres</param-value>
     </context-param>
 
 </web-app>

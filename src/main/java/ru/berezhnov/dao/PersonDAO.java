@@ -85,4 +85,25 @@ public class PersonDAO {
             rs.getInt("year_of_birth")
         );
     }
+
+    public List<Book> getBooksByPersonId(int personId) {
+        List<Book> books = new ArrayList<>();
+        String sql = "SELECT * FROM book WHERE person_id = ?";
+        try (Connection connection = DBUtil.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, personId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Book book = new Book();
+                book.setId(rs.getInt("id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setYear(rs.getInt("year"));
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
 }

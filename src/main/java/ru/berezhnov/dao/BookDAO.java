@@ -87,4 +87,48 @@ public class BookDAO {
             (Integer) rs.getObject("person_id") // может быть NULL
         );
     }
+
+    public Person getPersonByBookId(int bookId) {
+        String sql = "SELECT p.id, p.full_name, p.year_of_birth FROM person p " +
+                "INNER JOIN book b ON p.id = b.person_id WHERE b.id = ?";
+        try (Connection connection = DBUtil.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, bookId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Person owner = new Person();
+                owner.setId(rs.getInt("id"));
+                owner.setFullName(rs.getString("full_name"));
+                owner.setBirthYear(rs.getInt("birth_year"));
+                return owner;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void giveBookToPerson(int bookId, int personId) {
+        String sql = "UPDATE book SET person_id = ? WHERE id = ?";
+        try (Connection connection = DBUtil.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, personId);
+            stmt.setInt(2, bookId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void takeBookFromPerson(int bookId) {
+        String sql = "UPDATE book SET person_id = NULL WHERE id = ?";
+        try (Connection connection = DBUtil.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, bookId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

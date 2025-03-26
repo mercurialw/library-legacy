@@ -16,7 +16,7 @@
 </c:forEach>
 
 <hr/>
-<a action="${pageContext.request.contextPath}/people/new">Добавить человека</a>
+<a href="${pageContext.request.contextPath}/people/new">Добавить человека</a>
 <hr/>
 <a href="${pageContext.request.contextPath}/books">Перейти к книгам</a>
 

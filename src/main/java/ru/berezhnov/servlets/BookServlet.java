@@ -1,6 +1,7 @@
 package ru.berezhnov.servlets;
 
 import ru.berezhnov.dao.BookDAO;
+import ru.berezhnov.dao.PersonDAO;
 import ru.berezhnov.models.Book;
 
 import javax.servlet.ServletException;
@@ -44,12 +45,23 @@ public class BookServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+
         String method = req.getParameter("_method");
 
         if ("PATCH".equalsIgnoreCase(method)) {
             doPatch(req, resp);
         } else if ("DELETE".equalsIgnoreCase(method)) {
             doDelete(req, resp);
+        } else if ("ASSIGN".equalsIgnoreCase(method)) {
+            int bookId = Integer.parseInt(req.getPathInfo().replaceAll("\\D+", ""));
+            int personId = Integer.parseInt(req.getParameter("personId"));
+            bookDAO.giveBookToPerson(bookId, personId);
+            resp.sendRedirect(req.getRequestURI());
+        } else if ("RETURN".equalsIgnoreCase(method)) {
+            int bookId = Integer.parseInt(req.getPathInfo().replaceAll("\\D+", ""));
+            bookDAO.takeBookFromPerson(bookId);
+            resp.sendRedirect(req.getContextPath() + "/books/" + bookId);
         } else {
             Book book = new Book();
             book.setTitle(req.getParameter("title"));

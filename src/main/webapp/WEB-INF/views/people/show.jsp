@@ -19,7 +19,13 @@
     <hr/>
     <p><strong>Книги:</strong></p>
     <c:forEach var="book" items="${books}">
-        <p><c:out value="${book.title}, ${book.author}, ${book.year}"/></p>
+        <p>
+                <c:out value="${book.title}, ${book.author}, ${book.year}"/>
+        <form action="<c:url value='/books/${book.id}'/>" method="post" style="display:inline;">
+            <input type="hidden" name="_method" value="RETURN"/>
+            <input type="submit" value="Вернуть книгу"/>
+        </form>
+        </p>
     </c:forEach>
 </c:if>
 

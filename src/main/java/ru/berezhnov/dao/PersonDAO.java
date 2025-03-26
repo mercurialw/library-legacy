@@ -1,5 +1,6 @@
 package ru.berezhnov.dao;
 
+import ru.berezhnov.models.Book;
 import ru.berezhnov.models.Person;
 import ru.berezhnov.util.DBUtil;
 
@@ -11,12 +12,9 @@ public class PersonDAO {
 
     public List<Person> index() {
         List<Person> people = new ArrayList<>();
-        String sql = "SELECT * FROM person ORDER BY id";
-
-        try (Connection connection = DBUtil.getConnection();
-             Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM person");
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 people.add(mapPerson(rs));
             }
@@ -27,19 +25,18 @@ public class PersonDAO {
     }
 
     public Person show(int id) {
-        String sql = "SELECT * FROM person WHERE id = ?";
-        try (Connection connection = DBUtil.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
+        Person person = null;
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM person WHERE id = ?")) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return mapPerson(rs);
+                person = mapPerson(rs);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return person;
     }
 
     public void save(Person person) {
@@ -83,9 +80,9 @@ public class PersonDAO {
 
     private Person mapPerson(ResultSet rs) throws SQLException {
         return new Person(
-                rs.getInt("id"),
-                rs.getString("full_name"),
-                rs.getInt("birth_year")
+            rs.getInt("id"),
+            rs.getString("full_name"),
+            rs.getInt("year_of_birth")
         );
     }
 }

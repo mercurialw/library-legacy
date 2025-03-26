@@ -23,6 +23,8 @@ public class PersonServlet extends HttpServlet {
             List<Person> people = personDAO.index();
             req.setAttribute("people", people);
             req.getRequestDispatcher("/WEB-INF/views/people/index.jsp").forward(req, resp);
+        } else if (pathInfo.equals("/new")) {
+            req.getRequestDispatcher("/WEB-INF/views/people/new.jsp").forward(req, resp);
         } else if (pathInfo.matches("^/\\d+/edit$")) {
             int id = Integer.parseInt(pathInfo.replaceAll("\\D+", ""));
             req.setAttribute("person", personDAO.show(id));
@@ -30,6 +32,7 @@ public class PersonServlet extends HttpServlet {
         } else if (pathInfo.matches("^/\\d+$")) {
             int id = Integer.parseInt(pathInfo.substring(1));
             req.setAttribute("person", personDAO.show(id));
+            req.setAttribute("books", personDAO.getBooksByPersonId(id));
             req.getRequestDispatcher("/WEB-INF/views/people/show.jsp").forward(req, resp);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -38,6 +41,8 @@ public class PersonServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+
         String method = req.getParameter("_method");
 
         if ("PATCH".equalsIgnoreCase(method)) {

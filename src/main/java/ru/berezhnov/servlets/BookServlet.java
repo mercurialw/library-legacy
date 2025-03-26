@@ -14,6 +14,7 @@ import java.util.List;
 @WebServlet("/books/*")
 public class BookServlet extends HttpServlet {
     private final BookDAO bookDAO = new BookDAO();
+    private final PersonDAO personDAO = new PersonDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -23,13 +24,18 @@ public class BookServlet extends HttpServlet {
             List<Book> books = bookDAO.index();
             req.setAttribute("books", books);
             req.getRequestDispatcher("/WEB-INF/views/books/index.jsp").forward(req, resp);
+        } else if (pathInfo.equals("/new")) {
+            req.getRequestDispatcher("/WEB-INF/views/books/new.jsp").forward(req, resp);
         } else if (pathInfo.matches("^/\\d+/edit$")) {
             int id = Integer.parseInt(pathInfo.replaceAll("\\D+", ""));
             req.setAttribute("book", bookDAO.show(id));
             req.getRequestDispatcher("/WEB-INF/views/books/edit.jsp").forward(req, resp);
         } else if (pathInfo.matches("^/\\d+$")) {
             int id = Integer.parseInt(pathInfo.substring(1));
-            req.setAttribute("book", bookDAO.show(id));
+            Book book = bookDAO.show(id);
+            req.setAttribute("book", book);
+            req.setAttribute("owner", bookDAO.getPersonByBookId(id));
+            req.setAttribute("people", personDAO.index());
             req.getRequestDispatcher("/WEB-INF/views/books/show.jsp").forward(req, resp);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);

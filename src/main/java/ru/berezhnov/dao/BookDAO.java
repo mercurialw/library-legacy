@@ -99,7 +99,7 @@ public class BookDAO {
                 Person owner = new Person();
                 owner.setId(rs.getInt("id"));
                 owner.setFullName(rs.getString("full_name"));
-                owner.setBirthYear(rs.getInt("birth_year"));
+                owner.setBirthYear(rs.getInt("year_of_birth"));
                 return owner;
             }
         } catch (SQLException e) {

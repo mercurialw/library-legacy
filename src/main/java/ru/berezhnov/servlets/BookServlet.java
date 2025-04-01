@@ -57,7 +57,7 @@ public class BookServlet extends HttpServlet {
             int bookId = Integer.parseInt(req.getPathInfo().replaceAll("\\D+", ""));
             int personId = Integer.parseInt(req.getParameter("personId"));
             bookDAO.giveBookToPerson(bookId, personId);
-            resp.sendRedirect(req.getRequestURI());
+            resp.sendRedirect(req.getContextPath() + "/books/" + bookId);
         } else if ("RETURN".equalsIgnoreCase(method)) {
             int bookId = Integer.parseInt(req.getPathInfo().replaceAll("\\D+", ""));
             bookDAO.takeBookFromPerson(bookId);

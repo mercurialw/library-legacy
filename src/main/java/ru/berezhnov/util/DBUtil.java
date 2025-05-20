@@ -1,23 +1,32 @@
 package ru.berezhnov.util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DBUtil {
-    private static final String URL = "jdbc:postgresql://localhost:5432/library";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "postgres";
+    private static final String PROPERTIES_FILE = "/db.properties";
+    private final static String url;
+    private final static String username;
+    private final static String password;
 
     static {
-        try {
+        try (InputStream input = DBUtil.class.getResourceAsStream(PROPERTIES_FILE)) {
+            Properties props = new Properties();
+            props.load(input);
+            url = props.getProperty("jdbc.url");
+            username = props.getProperty("jdbc.username");
+            password = props.getProperty("jdbc.password");
             Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Ошибка загрузки драйвера PostgreSQL", e);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Ошибка загрузки настроек БД", e);
         }
     }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        return DriverManager.getConnection(url, username, password);
     }
 }
